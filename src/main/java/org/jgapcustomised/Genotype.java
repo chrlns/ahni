@@ -60,18 +60,18 @@ public class Genotype implements Serializable {
     /**
      * The current active Configuration instance.
      */
-    protected Configuration m_activeConfiguration;
+    protected Configuration activeConfig;
     protected Properties props;
     protected SpeciationParms m_specParms;
     protected SpeciationStrategy m_specStrategy;
     /**
      * Species that makeup this Genotype's population.
      */
-    protected List<Species> m_species = new ArrayList<>();
+    protected List<Species> species = new ArrayList<>();
     /**
      * Chromosomes that makeup thie Genotype's population.
      */
-    protected List<Chromosome> m_chromosomes = new ArrayList<>();
+    protected List<Chromosome> chromosomes = new ArrayList<>();
 
     protected int generation;
 
@@ -128,9 +128,9 @@ public class Genotype implements Serializable {
         // be altered.
         // ----------------------------------------------------------------
         a_activeConfiguration.lockSettings();
-        m_activeConfiguration = a_activeConfiguration;
+        activeConfig = a_activeConfiguration;
 
-        m_specParms = m_activeConfiguration.getSpeciationParms();
+        m_specParms = activeConfig.getSpeciationParms();
         m_specStrategy = (SpeciationStrategy) props.singletonObjectProperty(props.getClassProperty(SPECIATION_STRATEGY_CLASS_KEY, SpeciationStrategyOriginal.class));
 
         adjustChromosomeList(a_initialChromosomes, a_activeConfiguration.getPopulationSize(), null);
@@ -153,7 +153,7 @@ public class Genotype implements Serializable {
         while (chroms.size() < targetSize) {
             int idx = chroms.size() % originals.size();
             Chromosome orig = originals.get(idx);
-            Chromosome clone = new Chromosome(orig.cloneMaterial(), m_activeConfiguration.nextChromosomeId(), orig.getObjectiveCount(), orig.getNoveltyObjectiveCount());
+            Chromosome clone = new Chromosome(orig.cloneMaterial(), activeConfig.nextChromosomeId(), orig.getObjectiveCount(), orig.getNoveltyObjectiveCount());
             chroms.add(clone);
             if (orig.getSpecie() != null) {
                 orig.getSpecie().add(clone);
@@ -161,8 +161,8 @@ public class Genotype implements Serializable {
         }
         if (chroms.size() > targetSize) {
             // remove random chromosomes
-            Collections.shuffle(m_chromosomes, m_activeConfiguration.getRandomGenerator());
-            Iterator<Chromosome> popIter = m_chromosomes.iterator();
+            Collections.shuffle(chromosomes, activeConfig.getRandomGenerator());
+            Iterator<Chromosome> popIter = chromosomes.iterator();
             while (chroms.size() > targetSize && popIter.hasNext()) {
                 Chromosome c = popIter.next();
                 // don't randomly remove elites or population fittest (they're supposed to survive till next generation)
@@ -182,7 +182,7 @@ public class Genotype implements Serializable {
      * @param chromosomes A collection of Chromosome objects.
      */
     protected void addChromosomes(Collection<Chromosome> chromosomes) {
-        m_chromosomes.addAll(chromosomes);
+        this.chromosomes.addAll(chromosomes);
     }
 
     /**
@@ -195,8 +195,8 @@ public class Genotype implements Serializable {
         Iterator<ChromosomeMaterial> iter = chromosomeMaterial.iterator();
         while (iter.hasNext()) {
             ChromosomeMaterial cMat = iter.next();
-            Chromosome chrom = new Chromosome(cMat, m_activeConfiguration.nextChromosomeId(), m_activeConfiguration.getObjectiveCount(), m_activeConfiguration.getNoveltyObjectiveCount());
-            m_chromosomes.add(chrom);
+            Chromosome chrom = new Chromosome(cMat, activeConfig.nextChromosomeId(), activeConfig.getObjectiveCount(), activeConfig.getNoveltyObjectiveCount());
+            chromosomes.add(chrom);
         }
     }
 
@@ -207,7 +207,7 @@ public class Genotype implements Serializable {
      */
     /*
 	 * protected void addChromosomeFromMaterial(ChromosomeMaterial cMat) { Chromosome chrom = new Chromosome(cMat,
-	 * m_activeConfiguration.nextChromosomeId()); m_chromosomes.add(chrom); }
+	 * activeConfig.nextChromosomeId()); chromosomes.add(chrom); }
      */
     /**
      * add chromosome to population and to appropriate specie
@@ -215,25 +215,25 @@ public class Genotype implements Serializable {
      * @param chrom
      */
     /*
-	 * protected void addChromosome(Chromosome chrom) { m_chromosomes.add(chrom);
+	 * protected void addChromosome(Chromosome chrom) { chromosomes.add(chrom);
 	 * 
-	 * // specie collection boolean added = false; Species specie = null; Iterator<Species> iter = m_species.iterator();
+	 * // specie collection boolean added = false; Species specie = null; Iterator<Species> iter = species.iterator();
 	 * while (iter.hasNext() && !added) { specie = iter.next(); if (specie.match(chrom)) { specie.add(chrom); added =
-	 * true; } } if (!added) { specie = new Species(m_activeConfiguration.getSpeciationParms(), chrom);
-	 * m_species.add(specie); //System.out.println("adding species"); } }
+	 * true; } } if (!added) { specie = new Species(activeConfig.getSpeciationParms(), chrom);
+	 * species.add(specie); //System.out.println("adding species"); } }
      */
     /**
      * @return List contains Chromosome objects, the population of Chromosomes.
      */
     public synchronized List<Chromosome> getChromosomes() {
-        return m_chromosomes;
+        return chromosomes;
     }
 
     /**
      * @return List contains Species objects
      */
     public synchronized List<Species> getSpecies() {
-        return m_species;
+        return species;
     }
 
     /**
@@ -269,12 +269,12 @@ public class Genotype implements Serializable {
 
     /**
      * Performs one generation cycle, evaluating fitness, selecting survivors,
-     * repopulting with offspring, and mutating new population. This is a
-     * modified version of original JGAP method which changes order of
-     * operations and splits <code>GeneticOperator</code> into
-     * <code>ReproductionOperator</code> and <code>MutationOperator</code>. New
-     * order of operations (this is probably out of date now):
-     * <ol>
+     * repopulting with offspring, and mutating new population.This is a
+ modified version of original JGAP method which changes order of
+ operations and splits <code>GeneticOperator</code> into
+    <code>ReproductionOperator</code> and <code>MutationOperator</code>. New
+ order of operations (this is probably out of date now):
+ <ol>
      * <li>assign <b>fitness </b> to all members of population with
      * <code>BulkFitnessFunction</code> or <code>FitnessFunction</code></li>
      * <li><b>select </b> survivors and remove casualties from population</li>
@@ -286,22 +286,24 @@ public class Genotype implements Serializable {
      * Genetic event <code>GeneticEvent.GENOTYPE_EVALUATED_EVENT</code> is fired
      * between steps 2 and 3. Genetic event
      * <code>GeneticEvent.GENOTYPE_EVOLVED_EVENT</code> is fired after step 4.
+     * @param numEvolutions
      * @return 
      */
     public synchronized Chromosome evolve(int numEvolutions) {
         try {
-            m_activeConfiguration.lockSettings();
-            BulkFitnessFunction bulkFunction = m_activeConfiguration.getBulkFitnessFunction();
+            activeConfig.lockSettings();
+            BulkFitnessFunction bulkFunction = activeConfig.getBulkFitnessFunction();
             Iterator<Chromosome> it;
 
             // Reset evaluation data for all members of the population.
-            for (Chromosome c : m_chromosomes) {
+            for (Chromosome c : chromosomes) {
                 c.resetEvaluationData();
             }
 
             // Fire an event to indicate we're now evaluating all chromosomes.
             // -------------------------------------------------------
-            m_activeConfiguration.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_START_EVALUATION_EVENT, this));
+            activeConfig.getEventManager().fireGeneticEvent(
+                    new GeneticEvent(GeneticEvent.GENOTYPE_START_EVALUATION_EVENT, this));
 
             // If a bulk fitness function has been provided, then convert the
             // working pool to an array and pass it to the bulk fitness
@@ -309,13 +311,13 @@ public class Genotype implements Serializable {
             // each of the Chromosomes.
             // --------------------------------------------------------------
             if (bulkFunction != null) {
-                bulkFunction.evaluate(m_chromosomes);
+                bulkFunction.evaluate(chromosomes);
             } else {
                 // Refactored such that Chromosome does not need a reference to Configuration. Left this
                 // in for backward compatibility, but it makes more sense to use BulkFitnessFunction
                 // now.
-                FitnessFunction function = m_activeConfiguration.getFitnessFunction();
-                it = m_chromosomes.iterator();
+                FitnessFunction function = activeConfig.getFitnessFunction();
+                it = chromosomes.iterator();
                 while (it.hasNext()) {
                     Chromosome c = it.next();
                     int fitness = function.getFitnessValue(c);
@@ -325,12 +327,13 @@ public class Genotype implements Serializable {
 
             // Fire an event to indicate we've evaluated all chromosomes.
             // -------------------------------------------------------
-            m_activeConfiguration.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_EVALUATED_EVENT, this));
+            activeConfig.getEventManager().fireGeneticEvent(
+                    new GeneticEvent(GeneticEvent.GENOTYPE_EVALUATED_EVENT, this));
 
             // Remove all chromosomes which have 0 fitness value(s), no point putting resources into speciating and 
             // otherwise processing them when they're almost certainly going to be discarded when selection takes place.
             zeroFitnessCount = 0;
-            Iterator<Chromosome> chromItr = m_chromosomes.iterator();
+            Iterator<Chromosome> chromItr = chromosomes.iterator();
             while (chromItr.hasNext()) {
                 Chromosome c = chromItr.next();
                 double f = ArrayUtil.sum(c.getFitnessValues());
@@ -340,21 +343,21 @@ public class Genotype implements Serializable {
                 }
             }
 
-            if (m_chromosomes.isEmpty()) {
+            if (chromosomes.isEmpty()) {
                 logger.warn("Entire population received zero fitness value.");
             }
 
             // Speciate population.
-            m_specStrategy.speciate(m_chromosomes, m_species, this);
+            m_specStrategy.speciate(chromosomes, species, this);
             // Update originalSize for each species.
-            m_species.forEach((species) -> {
+            species.forEach((species) -> {
                 species.originalSize = species.size();
             });
 
             // Remove clones from population and collect some stats. We do this after speciation.
             minSpeciesSize = Integer.MAX_VALUE;
             maxSpeciesSize = 0;
-            for (Species s : m_species) {
+            for (Species s : species) {
                 //List<Chromosome> removed = s.cullClones();
                 //m_chromosomes.removeAll(removed);
 
@@ -367,9 +370,9 @@ public class Genotype implements Serializable {
             }
 
             // Find best performing individual.
-            Collections.sort(m_chromosomes, new ChromosomePerformanceComparator(targetPerformanceType == 0));
-            Chromosome topChrom = m_chromosomes.get(0);
-            if (previousBestPerforming == null || !m_chromosomes.contains(previousBestPerforming)
+            Collections.sort(chromosomes, new ChromosomePerformanceComparator(targetPerformanceType == 0));
+            Chromosome topChrom = chromosomes.get(0);
+            if (previousBestPerforming == null || !chromosomes.contains(previousBestPerforming)
                     || targetPerformanceType == 1 && topChrom.getPerformanceValue() > previousBestPerforming.getPerformanceValue()
                     || targetPerformanceType == 0 && topChrom.getPerformanceValue() < previousBestPerforming.getPerformanceValue()
                     || ((int) (topChrom.getPerformanceValue() * 1000) == (int) (previousBestPerforming.getPerformanceValue() * 1000) && topChrom.getFitnessValue() > previousBestPerforming.getFitnessValue())) {
@@ -381,40 +384,42 @@ public class Genotype implements Serializable {
 
             previousBestPerforming = bestPerforming;
             // Set which species contains the best performing individual.
-            m_species.forEach((s) -> {
+            species.forEach((s) -> {
                 s.containsBestPerforming = false;
             });
             bestPerforming.getSpecie().containsBestPerforming = true;
 
             // Determine zero performance count.
             zeroPerformanceCount = 0;
-            for (Chromosome c : m_chromosomes) {
+            for (Chromosome c : chromosomes) {
                 if (c.getPerformanceValue() == 0 || Double.isNaN(c.getPerformanceValue())) {
                     zeroPerformanceCount++;
                 }
             }
 
-            // Select chromosomes to generate new population from, and determine elites that will survive unchanged to next generation.
-            // Note that speciation must occur before selection to allow selecting correct proportion of parents and elites for each species.
-            // ------------------------------------------------------------
-            NaturalSelector selector = m_activeConfiguration.getNaturalSelector();
-            selector.add(m_activeConfiguration, m_species, m_chromosomes, bestPerforming);
-            m_chromosomes = selector.select(m_activeConfiguration);
+            // Select chromosomes to generate new population from, and determine 
+            // elites that will survive unchanged to next generation.
+            // Note that speciation must occur before selection to allow 
+            // selecting correct proportion of parents and elites for each 
+            // species.
+            NaturalSelector selector = activeConfig.getNaturalSelector();
+            selector.add(activeConfig, species, chromosomes, bestPerforming);
+            chromosomes = selector.select(activeConfig);
             selector.empty();
 
-            assert m_species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
-            assert m_chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population." + bestPerforming;
+            assert species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
+            assert chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population." + bestPerforming;
 
-            // Find fittest individual (this has been moved from just below bulkFunction.evaluate(m_chromosomes) because now the
+            // Find fittest individual (this has been moved from just below bulkFunction.evaluate(chromosomes) because now the
             // selector can change the overall fitness, which is what we're using here.
-            if (previousFittest != null && m_chromosomes.contains(previousFittest)) {
+            if (previousFittest != null && chromosomes.contains(previousFittest)) {
                 // Attempt to reuse previous fittest if available.
                 fittest = previousFittest;
             } else {
                 fittest = null;
             }
             
-            for (Chromosome c : m_chromosomes) {
+            for (Chromosome c : chromosomes) {
                 if (fittest == null || 
                     fittest.getFitnessValue() < c.getFitnessValue() || 
                    (fittest.getFitnessValue() == c.getFitnessValue() && fittest.getPerformanceValue() < c.getPerformanceValue())) 
@@ -426,32 +431,32 @@ public class Genotype implements Serializable {
 
             // For each species calculate the average (shared) fitness value and 
             // then cull it down to contain only parent chromosomes.
-            for (Species s : m_species) {
+            for (Species s : species) {
                 // Set the average species fitness using its full complement of individuals from this generation.
                 s.calculateAverageFitness();
 
                 // Remove any individuals not selected as parents from the species.
-                s.cull(m_chromosomes);
+                s.cull(chromosomes);
             }
-            if (m_species.isEmpty()) {
+            if (species.isEmpty()) {
                 logger.info("All species removed!");
             }
 
-            assert m_species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
-            assert m_chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
+            assert species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
+            assert chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
 
             // Repopulate the population of species and chromosomes with those selected
             // by the natural selector
             // -------------------------------------------------------
             // Fire an event to indicate we're starting genetic operators. Among
             // other things this allows for RAM conservation.
-            m_activeConfiguration.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_START_GENETIC_OPERATORS_EVENT, this));
+            activeConfig.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_START_GENETIC_OPERATORS_EVENT, this));
 
             // Execute Reproduction Operators.
             // -------------------------------------
             List<ChromosomeMaterial> offspring = new ArrayList<>();
-            for (ReproductionOperator operator : m_activeConfiguration.getReproductionOperators()) {
-                operator.reproduce(m_activeConfiguration, m_species, offspring);
+            for (ReproductionOperator operator : activeConfig.getReproductionOperators()) {
+                operator.reproduce(activeConfig, species, offspring);
             }
             
             // TODO
@@ -461,54 +466,54 @@ public class Genotype implements Serializable {
 
             // Execute Mutation Operators.
             // -------------------------------------
-            for (MutationOperator operator : m_activeConfiguration.getMutationOperators()) {
-                operator.mutate(m_activeConfiguration, offspring, generation, numEvolutions);
+            for (MutationOperator operator : activeConfig.getMutationOperators()) {
+                operator.mutate(activeConfig, offspring, generation, numEvolutions);
             }
 
             // Cull population down to just elites (only elites survive to next gen)
-            m_chromosomes.clear();
-            for (Species s : m_species) {
+            chromosomes.clear();
+            for (Species s : species) {
                 s.cullToElites(bestPerforming);
                 if (!s.isEmpty()) {
                     s.newGeneration(); // updates internal variables
-                    m_chromosomes.addAll(s.getChromosomes());
+                    chromosomes.addAll(s.getChromosomes());
                 }
             }
 
-            assert m_chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
-            assert m_species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
+            assert chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
+            assert species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
 
             // Add offspring
             // ------------------------------
             addChromosomesFromMaterial(offspring);
 
-            for (Species s : m_species) {
+            for (Species s : species) {
                 List<Chromosome> removed = s.cullClones();
-                m_chromosomes.removeAll(removed);
+                chromosomes.removeAll(removed);
             }
 
             // Do we really care if we're a little bit off the target population size?
             // In case we're off due to rounding errors
-            //if (m_chromosomes.size() != m_activeConfiguration.getPopulationSize()) {
-            //	adjustChromosomeList(m_chromosomes, m_activeConfiguration.getPopulationSize(), bestPerforming);
+            //if (chromosomes.size() != activeConfig.getPopulationSize()) {
+            //	adjustChromosomeList(chromosomes, activeConfig.getPopulationSize(), bestPerforming);
             //}
-            assert m_chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
+            assert chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
 
             // Fire an event to indicate we've finished genetic operators. Among
             // other things this allows for RAM conservation.
             // -------------------------------------------------------
-            m_activeConfiguration.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_FINISH_GENETIC_OPERATORS_EVENT, this));
+            activeConfig.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_FINISH_GENETIC_OPERATORS_EVENT, this));
 
             // Fire an event to indicate we've performed an evolution.
             // -------------------------------------------------------
-            m_activeConfiguration.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_EVOLVED_EVENT, this));
+            activeConfig.getEventManager().fireGeneticEvent(new GeneticEvent(GeneticEvent.GENOTYPE_EVOLVED_EVENT, this));
 
             generation++;
         } catch (InvalidConfigurationException e) {
             throw new RuntimeException("bad config", e);
         }
 
-        assert m_chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
+        assert chromosomes.contains(bestPerforming) : "Global bestPerforming removed from population.";
 
         return fittest;
     }
@@ -542,7 +547,7 @@ public class Genotype implements Serializable {
     }
 
     public Configuration getConfiguration() {
-        return m_activeConfiguration;
+        return activeConfig;
     }
 
     public int getGeneration() {
@@ -556,7 +561,7 @@ public class Genotype implements Serializable {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
 
-        Iterator<Chromosome> iter = m_chromosomes.iterator();
+        Iterator<Chromosome> iter = chromosomes.iterator();
         while (iter.hasNext()) {
             Chromosome chrom = iter.next();
             buffer.append(chrom.toString());
@@ -612,12 +617,12 @@ public class Genotype implements Serializable {
 
     public double getAveragePopulationFitness() {
         long fitness = 0;
-        Iterator<Chromosome> iter = m_chromosomes.iterator();
+        Iterator<Chromosome> iter = chromosomes.iterator();
         while (iter.hasNext()) {
             Chromosome chrom = iter.next();
             fitness += chrom.getFitnessValue();
         }
-        return fitness / m_chromosomes.size();
+        return fitness / chromosomes.size();
     }
 
     /**
@@ -644,7 +649,7 @@ public class Genotype implements Serializable {
             // First, make sure the other Genotype has the same number of
             // chromosomes as this one.
             // ----------------------------------------------------------
-            if (m_chromosomes.size() != otherGenotype.m_chromosomes.size()) {
+            if (chromosomes.size() != otherGenotype.chromosomes.size()) {
                 return false;
             }
 
@@ -655,11 +660,11 @@ public class Genotype implements Serializable {
             // genetic algorithm (it doesn't care about the order), but makes
             // it much easier to perform the comparison here.
             // --------------------------------------------------------------
-            Collections.sort(m_chromosomes);
-            Collections.sort(otherGenotype.m_chromosomes);
+            Collections.sort(chromosomes);
+            Collections.sort(otherGenotype.chromosomes);
 
-            Iterator<Chromosome> iter = m_chromosomes.iterator();
-            Iterator<Chromosome> otherIter = otherGenotype.m_chromosomes.iterator();
+            Iterator<Chromosome> iter = chromosomes.iterator();
+            Iterator<Chromosome> otherIter = otherGenotype.chromosomes.iterator();
             while (iter.hasNext() && otherIter.hasNext()) {
                 Chromosome chrom = iter.next();
                 Chromosome otherChrom = otherIter.next();

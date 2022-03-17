@@ -304,6 +304,7 @@ public class Species {
     /**
      * remove all non-elite chromosomes from this species, except for
      * population-wide bestPerforming
+     * @param popBestPerforming
      */
     public void cullToElites(Chromosome popBestPerforming) {
         Iterator<Chromosome> it = chromosomes.iterator();

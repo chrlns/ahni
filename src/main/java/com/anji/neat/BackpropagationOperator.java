@@ -1,6 +1,6 @@
 /*
  *   YAHNI Yet Another HyperNEAT Implementation
- *   Copyright (C) 2020  Christian Lins <christian@lins.me>
+ *   Copyright (C) 2020-2022  Christian Lins <christian@lins.me>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,14 +26,12 @@ import com.anji.nn.Neuron;
 import com.anji.nn.NeuronConnection;
 import com.anji.nn.activationfunction.DifferentiableFunction;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import me.lins.yahni.neat.TrainingData;
 import org.apache.commons.math3.util.Pair;
 import org.jgapcustomised.Allele;
@@ -199,7 +197,7 @@ public class BackpropagationOperator extends MutationOperator {
             // Batch learning completed, apply ΔW changes to connections
             // TODO We could avoid ΔW and apply the changes directly to the
             // genotype as this only re-read in the next generation
-            if (ΔW.size() > 0) {
+            if (!ΔW.isEmpty()) {
                 net.getAllNeurons().forEach((neuron) -> {
                     for (var conn : neuron.getIncomingConns()) {
                         if (conn instanceof NeuronConnection) {

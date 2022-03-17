@@ -146,17 +146,16 @@ public class Configuration implements java.io.Serializable {
      *
      * At least one reproduction operator must be provided.
      *
-     * @param a_operatorToAdd The reproduction operator to be added.
+     * @param reprodOp The reproduction operator to be added.
      *
      * @throws InvalidConfigurationException if the reproduction operator is
-     * null a_operatorToAdd this object is locked.
+     * null reprodOp this object is locked.
      */
-    public synchronized void addReproductionOperator(ReproductionOperator a_operatorToAdd) throws InvalidConfigurationException {
-        verifyChangesAllowed();
-        if (a_operatorToAdd == null) {
-            throw new InvalidConfigurationException("ReproductionOperator instance may not be null.");
-        }
-        reproductionOperators.add(a_operatorToAdd);
+    public void addReproductionOperator(ReproductionOperator reprodOp) 
+            throws InvalidConfigurationException 
+    {
+        assert reprodOp != null;
+        reproductionOperators.add(reprodOp);
     }
 
     /**
