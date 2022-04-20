@@ -51,14 +51,14 @@ public class Configuration implements java.io.Serializable {
      * @return next unique chromosome ID
      */
     public Long nextChromosomeId() {
-        return new Long(idFactory.next());
+        return idFactory.next();
     }
 
     /**
      * @return next unique innovation ID
      */
     public Long nextInnovationId() {
-        return new Long(idFactory.next());
+        return idFactory.next();
     }
 
     /**

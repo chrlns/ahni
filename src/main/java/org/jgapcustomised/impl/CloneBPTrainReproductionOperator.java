@@ -17,6 +17,7 @@
  */
 package org.jgapcustomised.impl;
 
+import com.ojcoleman.ahni.integration.ParamAllele;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,8 @@ public class CloneBPTrainReproductionOperator extends ReproductionOperator {
      */
     @Override
     protected void reproduce(final Configuration config, final List<Chromosome> parents, int numOffspring, List<ChromosomeMaterial> offsprings) {
-        // Sort fittest first to ensure we include these (and more than once if numOffspring is greater than number of parents).
+        // Sort fittest first to ensure we include these (and more than once if 
+        // numOffspring is greater than number of parents).
         List<Chromosome> parentsSorted = new ArrayList<>(parents);
         Collections.sort(parentsSorted, new ChromosomeFitnessComparator(false, false));
         for (int i = 0; i < numOffspring; i++) {
@@ -57,7 +59,8 @@ public class CloneBPTrainReproductionOperator extends ReproductionOperator {
             var offspring = parent.cloneMaterial();
             
             // Set allel for backpropagation training
-            offspring.setAlleles(null);
+            ParamAllele pa = new ParamAllele(paramGene);
+            offspring.getAlleles().add(pa);
             offspring.setShouldMutate(true);
             
             offsprings.add(offspring);

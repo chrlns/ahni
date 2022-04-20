@@ -36,8 +36,10 @@ public class NeuronGene extends Gene {
     private String activationType;
 
     /**
+     * @return 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         return getInnovationId().toString() + " (" + type.toString().substring(0, 1) + ")";
     }

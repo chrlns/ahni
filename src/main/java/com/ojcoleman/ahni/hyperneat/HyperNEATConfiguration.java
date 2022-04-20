@@ -14,17 +14,14 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jgapcustomised.Allele;
-import org.jgapcustomised.BulkFitnessFunction;
 import org.jgapcustomised.Chromosome;
 import org.jgapcustomised.ChromosomeMaterial;
 import org.jgapcustomised.InvalidConfigurationException;
 
 import com.anji.integration.Activator;
 import com.anji.integration.ActivatorTranscriber;
-import com.anji.integration.AnjiActivator;
 import com.anji.integration.AnjiNetTranscriber;
 import com.anji.integration.Transcriber;
-import com.anji.integration.TranscriberException;
 import com.anji.neat.NeatChromosomeUtility;
 import com.anji.neat.NeatConfiguration;
 import com.anji.neat.NeuronAllele;
@@ -32,10 +29,6 @@ import com.anji.neat.NeuronGene;
 import com.anji.neat.NeuronType;
 import com.anji.nn.activationfunction.StepActivationFunction;
 import com.anji.nn.activationfunction.GaussianActivationFunction;
-import com.ojcoleman.ahni.integration.ParamCollection;
-import com.ojcoleman.ahni.integration.ParamMutationOperator;
-import com.ojcoleman.ahni.integration.ParamAllele;
-import com.ojcoleman.ahni.integration.ParamGene;
 import com.ojcoleman.ahni.transcriber.HyperNEATTranscriber;
 import com.ojcoleman.ahni.transcriber.TranscriberAdaptor;
 

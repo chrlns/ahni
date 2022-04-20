@@ -25,6 +25,7 @@ import com.anji.nn.Connection;
 import com.anji.nn.Neuron;
 import com.anji.nn.NeuronConnection;
 import com.anji.nn.activationfunction.DifferentiableFunction;
+import com.ojcoleman.ahni.integration.ParamAllele;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,6 +93,8 @@ public class BackpropagationOperator extends MutationOperator {
     {
         if (finalRun && maxGen - currentGen > 1)
             return;
+        
+        Set<ParamAllele> paramAlleles = chromeMat.getAlleles(new ParamAllele(null));
         
         try {
             if (!(config.getBulkFitnessFunction() instanceof TrainingData))

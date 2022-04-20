@@ -27,12 +27,12 @@ import java.io.Serializable;
  * can be easily plugged-in, which can add a great deal of flexibility and
  * convenience for many applications. Innovation ID is used as a historical
  * marker and aids in crossover and determining "distance" between 2 chromosomes
- * for speciation. Not the difference between <code>compareTo()</code> and
+ * for speciation. Note the difference between <code>compareTo()</code> and
  * <code>distance()</code> :<code>compareTo()</code> is used by container
  * classes to sort genes by innovation ID, <code>distance()</code> is the
  * genetic distance between genes with the same innovation ID.
  */
-public class Gene implements Comparable, Serializable {
+public class Gene implements Comparable<Gene>, Serializable {
 
     private Long innovationId = null;
 
@@ -42,18 +42,23 @@ public class Gene implements Comparable, Serializable {
      * @see Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(Object o) {
-        Gene other = (Gene) o;
+    public int compareTo(Gene o) {
+        Gene other = o;
         return innovationId.compareTo(other.innovationId);
     }
 
     /**
+     * @param obj
      * @return true if same innovation ID
      * @see java.lang.Object#equals(Object)
      */
     @Override
-    public boolean equals(Object o) {
-        return (compareTo(o) == 0);
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Gene)) {
+            return false;
+        } else {
+            return compareTo((Gene)obj) == 0;
+        }
     }
 
     /**

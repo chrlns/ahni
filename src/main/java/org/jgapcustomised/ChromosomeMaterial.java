@@ -157,9 +157,13 @@ public class ChromosomeMaterial implements Comparable, Serializable {
     }
     
     public Set<ConnectionAllele> getConnectionAlleles() {
+        return getAlleles(new ConnectionAllele(null));
+    }
+    
+    public <T extends Allele> Set<T> getAlleles(T clazz) {
         return m_alleles.stream()
-                .filter(allele -> allele instanceof ConnectionAllele)
-                .map(allele -> (ConnectionAllele)allele)
+                .filter(allele -> allele.getClass().equals(clazz.getClass()))
+                .map(allele -> (T)allele)
                 .collect(Collectors.toSet());
     }
 
