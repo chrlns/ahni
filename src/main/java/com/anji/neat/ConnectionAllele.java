@@ -20,6 +20,7 @@
 package com.anji.neat;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 import java.util.Random;
 
 import org.jgapcustomised.Allele;
@@ -139,7 +140,7 @@ public class ConnectionAllele extends Allele {
             return false;
         }
         ConnectionAllele other = (ConnectionAllele) otherAllele;
-        return getSrcNeuronId() == other.getSrcNeuronId() && getDestNeuronId() == other.getDestNeuronId() && weight == other.weight;
+        return Objects.equals(getSrcNeuronId(), other.getSrcNeuronId()) && Objects.equals(getDestNeuronId(), other.getDestNeuronId()) && weight == other.weight;
     }
 
     /**

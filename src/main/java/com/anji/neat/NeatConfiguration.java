@@ -39,6 +39,7 @@ import com.anji.util.Configurable;
 import com.anji.util.Properties;
 import com.anji.util.Randomizer;
 import com.ojcoleman.ahni.util.ArrayUtil;
+import org.jgapcustomised.impl.CloneBPTrainReproductionOperator;
 
 /**
  * Extension of JGAP configuration with NEAT-specific features added.
@@ -237,6 +238,7 @@ public class NeatConfiguration extends Configuration implements Configurable {
 
     private Properties props;
     protected CloneReproductionOperator cloneOper = null;
+    protected CloneBPTrainReproductionOperator cloneBPTrainOper = null;
     protected NeatCrossoverReproductionOperator crossoverOper = null;
     protected double maxConnectionWeight = Float.MAX_VALUE;
     protected double minConnectionWeight = -Float.MAX_VALUE;
@@ -395,12 +397,14 @@ public class NeatConfiguration extends Configuration implements Configurable {
         double reproductionSlice = 1; // if only elites survive to next generation. exact number of elites changes so
         // handle at reproduction time.
         cloneOper = new CloneReproductionOperator();
+        cloneBPTrainOper = new CloneBPTrainReproductionOperator();
         crossoverOper = new NeatCrossoverReproductionOperator();
         getCloneOperator().setSlice(reproductionSlice * (1 - crossoverProportion));
         getCrossoverOperator().setSlice(reproductionSlice * crossoverProportion);
         getCloneOperator().setMutateRate(1.0);
         getCrossoverOperator().setMutateRate(props.getDoubleProperty(CROSSOVER_MUTATE_RATE_KEY, 1.0));
         addReproductionOperator(getCloneOperator());
+        addReproductionOperator(getCloneBPTrainOperator());
         addReproductionOperator(getCrossoverOperator());
 
         // mutation
@@ -604,6 +608,14 @@ public class NeatConfiguration extends Configuration implements Configurable {
      */
     public CloneReproductionOperator getCloneOperator() {
         return cloneOper;
+    }
+    
+    /**
+     * @return Clone reproduction operator that clones and traines offsprings 
+     * with backpropagation.
+     */
+    public CloneBPTrainReproductionOperator getCloneBPTrainOperator() {
+        return cloneBPTrainOper;
     }
 
     /**

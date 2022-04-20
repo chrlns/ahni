@@ -186,21 +186,6 @@ public class Genotype implements Serializable {
     }
 
     /**
-     * Add Chromosomes to this Genotype described by the given
-     * ChromosomeMaterial objects.
-     *
-     * @param chromosomeMaterial A collection of ChromosomeMaterial objects.
-     */
-    protected void addChromosomesFromMaterial(Collection<ChromosomeMaterial> chromosomeMaterial) {
-        Iterator<ChromosomeMaterial> iter = chromosomeMaterial.iterator();
-        while (iter.hasNext()) {
-            ChromosomeMaterial cMat = iter.next();
-            Chromosome chrom = new Chromosome(cMat, activeConfig.nextChromosomeId(), activeConfig.getObjectiveCount(), activeConfig.getNoveltyObjectiveCount());
-            chromosomes.add(chrom);
-        }
-    }
-
-    /**
      * @param cMat chromosome material from which to construct new chromosome
      * object
      * @see Genotype#addChromosome(Chromosome)
@@ -484,8 +469,13 @@ public class Genotype implements Serializable {
             assert species.contains(bestPerforming.getSpecie()) : "Species containing global bestPerforming removed from species list.";
 
             // Add offspring
-            // ------------------------------
-            addChromosomesFromMaterial(offspring);
+            for (ChromosomeMaterial cMat : offspring) {
+                Chromosome chrom = new Chromosome(cMat, 
+                        activeConfig.nextChromosomeId(), 
+                        activeConfig.getObjectiveCount(), 
+                        activeConfig.getNoveltyObjectiveCount());
+                chromosomes.add(chrom);
+            }
 
             for (Species s : species) {
                 List<Chromosome> removed = s.cullClones();

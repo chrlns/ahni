@@ -62,7 +62,6 @@ public class CloneReproductionOperator extends ReproductionOperator {
      * @param offspring <code>List</code> contains
      * <code>ChromosomeMaterial</code> objects
      */
-    @SuppressWarnings("unchecked")
     public static void reproduce(final List<Chromosome> parents, int numOffspring, List<ChromosomeMaterial> offspring) {
         // Sort fittest first to ensure we include these (and more than once if numOffspring is greater than number of parents).
         List<Chromosome> parentsSorted = new ArrayList<>(parents);

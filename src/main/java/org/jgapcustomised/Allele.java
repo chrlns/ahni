@@ -91,13 +91,14 @@ public abstract class Allele implements Comparable, Serializable {
      *
      * @param aGene
      */
-    private void setGene(Gene aGene) {
+    protected void setGene(Gene aGene) {
         gene = aGene;
     }
 
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(Object o) {
         Allele other = (Allele) o;
         return gene.compareTo(other.gene);
@@ -106,6 +107,7 @@ public abstract class Allele implements Comparable, Serializable {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         return (compareTo(o) == 0);
     }

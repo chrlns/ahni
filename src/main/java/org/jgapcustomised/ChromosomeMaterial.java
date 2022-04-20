@@ -76,7 +76,7 @@ public class ChromosomeMaterial implements Comparable, Serializable {
             }
         }
 
-        m_alleles = new TreeSet<Allele>(a_initialAlleles);
+        m_alleles = new TreeSet<>(a_initialAlleles);
     }
 
     /**
@@ -384,7 +384,7 @@ public class ChromosomeMaterial implements Comparable, Serializable {
      *
      * @param id ID of dominant parent
      */
-    void setPrimaryParentId(Long id) {
+    public final void setPrimaryParentId(Long id) {
         if (primaryParentId != null) {
             throw new IllegalStateException("can not set primary parent ID twice");
         }
@@ -394,7 +394,7 @@ public class ChromosomeMaterial implements Comparable, Serializable {
     /**
      * @param id ID of recessive parent
      */
-    public void setSecondaryParentId(Long id) {
+    public final void setSecondaryParentId(Long id) {
         if (secondaryParentId != null) {
             throw new IllegalStateException("can not set secondary parent ID twice");
         }
@@ -575,6 +575,7 @@ public class ChromosomeMaterial implements Comparable, Serializable {
     /**
      * May be used by reproduction operators to indicate that this individual is
      * a candidate for mutations.
+     * @param mutate
      */
     public void setShouldMutate(boolean mutate) {
         this.shouldMutate = mutate;

@@ -42,7 +42,9 @@ import com.ojcoleman.ahni.util.Parallel;
 public abstract class ReproductionOperator {
 
     private double slice = 0.0f;
-    // The probability that individuals produced by this operator will be a candidate for having mutations applied to them (independent of the mutation rates of MutationOperators).
+    
+    // The probability that individuals produced by this operator will be a 
+    // candidate for having mutations applied to them (independent of the mutation rates of MutationOperators).
     private double mutateProbability = 1;
 
     /**
@@ -105,7 +107,7 @@ public abstract class ReproductionOperator {
             if (parentSpecies.isEmpty()) {
                 throw new IllegalStateException("no parent species from which to produce offspring");
             }
-            final List<ChromosomeMaterial> newOffspring = Collections.synchronizedList(new ArrayList<ChromosomeMaterial>(targetNewOffspringCount));
+            final List<ChromosomeMaterial> newOffspring = Collections.synchronizedList(new ArrayList<>(targetNewOffspringCount));
 
             // Reproduce from each species relative to its percentage of total fitness
             Parallel.foreach(parentSpecies, 0, (Species species) -> {
@@ -142,7 +144,7 @@ public abstract class ReproductionOperator {
             }
 
             // Add clones of random offspring if we don't have enough.
-            while (newOffspring.size() > 0 && newOffspring.size() < targetNewOffspringCount) {
+            while (!newOffspring.isEmpty() && newOffspring.size() < targetNewOffspringCount) {
                 int idx = config.getRandomGenerator().nextInt(newOffspring.size());
                 ChromosomeMaterial clonee = (ChromosomeMaterial) newOffspring.get(idx);
                 ChromosomeMaterial c = clonee.clone(null);

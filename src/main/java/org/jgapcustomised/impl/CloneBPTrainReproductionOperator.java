@@ -43,31 +43,24 @@ public class CloneBPTrainReproductionOperator extends ReproductionOperator {
      * @param config
      * @param parents <code>List</code> contains Chromosome objects
      * @param numOffspring
-     * @param offspring <code>List</code> contains ChromosomeMaterial objects
+     * @param offsprings <code>List</code> contains ChromosomeMaterial objects
      * @see org.jgapcustomised.ReproductionOperator#reproduce(Configuration,
      * List, int, List)
      */
     @Override
-    protected void reproduce(final Configuration config, final List<Chromosome> parents, int numOffspring, List<ChromosomeMaterial> offspring) {
-        reproduce(parents, numOffspring, offspring);
-    }
-
-    /**
-     * Adds new children of <code>parents</code> to <code>offspring</code>.
-     *
-     * @param parents <code>List</code> contains <code>Chromosome</code> objects
-     * @param numOffspring
-     * @param offspring <code>List</code> contains
-     * <code>ChromosomeMaterial</code> objects
-     */
-    @SuppressWarnings("unchecked")
-    public static void reproduce(final List<Chromosome> parents, int numOffspring, List<ChromosomeMaterial> offspring) {
+    protected void reproduce(final Configuration config, final List<Chromosome> parents, int numOffspring, List<ChromosomeMaterial> offsprings) {
         // Sort fittest first to ensure we include these (and more than once if numOffspring is greater than number of parents).
         List<Chromosome> parentsSorted = new ArrayList<>(parents);
         Collections.sort(parentsSorted, new ChromosomeFitnessComparator(false, false));
         for (int i = 0; i < numOffspring; i++) {
             Chromosome parent = parentsSorted.get(i % parentsSorted.size());
-            offspring.add(parent.cloneMaterial());
+            var offspring = parent.cloneMaterial();
+            
+            // Set allel for backpropagation training
+            offspring.setAlleles(null);
+            offspring.setShouldMutate(true);
+            
+            offsprings.add(offspring);
         }
     }
 

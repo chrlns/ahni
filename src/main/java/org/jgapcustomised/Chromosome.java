@@ -175,9 +175,7 @@ public class Chromosome extends EvaluationData implements Comparable, Serializab
      * <code>null</code> if none match
      */
     public Allele findMatchingGene(Allele alleleToMatch) {
-        Iterator iter = m_alleles.iterator();
-        while (iter.hasNext()) {
-            Allele allele = (Allele) iter.next();
+        for (Allele allele : m_alleles) {
             if (allele.equals(alleleToMatch)) {
                 return allele;
             }
@@ -203,6 +201,7 @@ public class Chromosome extends EvaluationData implements Comparable, Serializab
      *
      * @return A string representation of this Chromosome.
      */
+    @Override
     public String toString() {
         return m_idString;
     }
@@ -215,6 +214,7 @@ public class Chromosome extends EvaluationData implements Comparable, Serializab
      * @param other The object to compare against.
      * @return true if the objects are the same, false otherwise.
      */
+    @Override
     public boolean equals(Object other) {
         return compareTo(other) == 0;
     }
@@ -224,6 +224,7 @@ public class Chromosome extends EvaluationData implements Comparable, Serializab
      *
      * @return the hash code of this Chromosome.
      */
+    @Override
     public int hashCode() {
         return m_id.hashCode();
     }
